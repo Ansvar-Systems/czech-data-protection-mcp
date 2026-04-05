@@ -90,18 +90,20 @@ npx @ansvar/czech-data-protection-mcp
 
 ---
 
-## Available Tools (6)
+## Available Tools (8)
 
 | Tool | Description |
 |------|-------------|
-| `cz_dp_search_decisions` | Full-text search across ÚOOÚ decisions (sanctions, decisions, and reprimands). Returns matching decisions with refere... |
-| `cz_dp_get_decision` | Get a specific ÚOOÚ decision by reference number (e.g., |
-| `cz_dp_search_guidelines` | Search ÚOOÚ guidance documents: guidelines, opinions, recommendations, and FAQs. Covers GDPR implementation, DPIA met... |
+| `cz_dp_search_decisions` | Full-text search across ÚOOÚ decisions (sanctions, decisions, and reprimands). Returns matching decisions with reference, entity name, fine amount, and GDPR articles cited. |
+| `cz_dp_get_decision` | Get a specific ÚOOÚ decision by reference number (e.g., `UOOU-00350/22-28`). |
+| `cz_dp_search_guidelines` | Search ÚOOÚ guidance documents: guidelines, opinions, recommendations, and FAQs. Covers GDPR implementation, DPIA methodology, cookies, CCTV, and more. |
 | `cz_dp_get_guideline` | Get a specific ÚOOÚ guidance document by its database ID. |
 | `cz_dp_list_topics` | List all covered data protection topics with Czech and English names. Use topic IDs to filter decisions and guidelines. |
 | `cz_dp_about` | Return metadata about this MCP server: version, data source, coverage, and tool list. |
+| `cz_dp_list_sources` | List all data sources with provenance metadata: authority, URL, coverage scope, language, and update frequency. |
+| `cz_dp_check_data_freshness` | Check data freshness: latest record dates and record counts per source. |
 
-All tools return structured data with source references and timestamps.
+All tools return structured data with a `_meta` block containing disclaimer, copyright, and source URL. See [TOOLS.md](TOOLS.md) for full parameter reference.
 
 ---
 
@@ -114,10 +116,10 @@ All content is sourced from official Czech regulatory publications:
 ### Data Currency
 
 - Database updates are periodic and may lag official publications
-- Freshness checks run via GitHub Actions workflows
-- Last-updated timestamps in tool responses indicate data age
+- Use `cz_dp_check_data_freshness` to check the latest record dates in the live database
+- Use `cz_dp_list_sources` for full provenance metadata
 
-See `sources.yml` for full provenance metadata.
+See [COVERAGE.md](COVERAGE.md) for full coverage details.
 
 ---
 
@@ -180,8 +182,8 @@ npx @anthropic/mcp-inspector node dist/index.js   # Test with MCP Inspector
 ### Data Management
 
 ```bash
-npm run build:db       # Rebuild SQLite database from seed data
-npm run check-updates  # Check for new regulatory data
+npm run seed    # Seed the SQLite database with sample data
+npm run ingest  # Run the ÚOOÚ ingestion crawler
 ```
 
 ---
@@ -218,7 +220,7 @@ Apache License 2.0. See [LICENSE](./LICENSE) for details.
 
 ### Data Licenses
 
-Regulatory data sourced from official government publications. See `sources.yml` for per-source licensing details.
+Regulatory data sourced from official government publications. See [COVERAGE.md](COVERAGE.md) for per-source details.
 
 ---
 
