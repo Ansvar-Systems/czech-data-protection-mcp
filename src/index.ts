@@ -25,6 +25,7 @@ import {
   searchGuidelines,
   getGuideline,
   listTopics,
+  getDataFreshness,
 } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -150,6 +151,16 @@ const TOOLS = [
       required: [],
     },
   },
+  {
+    name: "cz_dp_list_sources",
+    description: "List all data sources used by this server with provenance metadata: authority, URL, coverage scope, language, and update frequency.",
+    inputSchema: { type: "object" as const, properties: {}, required: [] },
+  },
+  {
+    name: "cz_dp_check_data_freshness",
+    description: "Check data freshness for each source. Reports latest record dates and record counts to assess how current the data is.",
+    inputSchema: { type: "object" as const, properties: {}, required: [] },
+  },
 ];
 
 // --- Zod schemas for argument validation --------------------------------------
@@ -178,11 +189,20 @@ const GetGuidelineArgs = z.object({
 
 // --- Helper ------------------------------------------------------------------
 
+const RESPONSE_META = {
+  disclaimer:
+    "Data sourced from official ÚOOÚ publications. Research tool only — not legal advice. Verify all references against primary sources before making compliance decisions.",
+  copyright: "ÚOOÚ (Úřad pro ochranu osobních údajů) — public regulatory data",
+  source_url: "https://www.uoou.cz/",
+};
+
 function textContent(data: unknown) {
+  const payload =
+    typeof data === "object" && data !== null
+      ? { ...(data as Record<string, unknown>), _meta: RESPONSE_META }
+      : { data, _meta: RESPONSE_META };
   return {
-    content: [
-      { type: "text" as const, text: JSON.stringify(data, null, 2) },
-    ],
+    content: [{ type: "text" as const, text: JSON.stringify(payload, null, 2) }],
   };
 }
 
@@ -267,6 +287,61 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             topics: "Consent, cookies, transfers, DPIA, breach notification, privacy by design, CCTV, health data, children",
           },
           tools: TOOLS.map((t) => ({ name: t.name, description: t.description })),
+        });
+      }
+
+      case "cz_dp_list_sources": {
+        return textContent({
+          sources: [
+            {
+              id: "uoou-decisions",
+              name: "ÚOOÚ Decisions and Sanctions",
+              authority: "Úřad pro ochranu osobních údajů (ÚOOÚ)",
+              url: "https://www.uoou.cz/",
+              type: "decisions",
+              language: "cs",
+              coverage:
+                "GDPR enforcement decisions, sanctions, and reprimands from the Czech Data Protection Authority",
+              license: "Public regulatory data — official government publications",
+              update_frequency: "Periodic",
+            },
+            {
+              id: "uoou-guidelines",
+              name: "ÚOOÚ Guidelines and Opinions",
+              authority: "Úřad pro ochranu osobních údajů (ÚOOÚ)",
+              url: "https://www.uoou.cz/",
+              type: "guidelines",
+              language: "cs",
+              coverage:
+                "Official guidance documents, opinions, recommendations, and FAQs on GDPR implementation",
+              license: "Public regulatory data — official government publications",
+              update_frequency: "Periodic",
+            },
+          ],
+          count: 2,
+        });
+      }
+
+      case "cz_dp_check_data_freshness": {
+        const freshness = getDataFreshness();
+        const checkedAt = new Date().toISOString().slice(0, 10);
+        return textContent({
+          checked_at: checkedAt,
+          sources: [
+            {
+              id: "uoou-decisions",
+              latest_date: freshness.decisions_latest_date,
+              record_count: freshness.decisions_count,
+              status: freshness.decisions_count > 0 ? "available" : "empty",
+            },
+            {
+              id: "uoou-guidelines",
+              latest_date: freshness.guidelines_latest_date,
+              record_count: freshness.guidelines_count,
+              status: freshness.guidelines_count > 0 ? "available" : "empty",
+            },
+          ],
+          note: "Database updates are periodic. Use cz_dp_list_sources for full source provenance.",
         });
       }
 
