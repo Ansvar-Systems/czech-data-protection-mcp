@@ -261,3 +261,28 @@ export function listTopics(): Topic[] {
     .prepare("SELECT * FROM topics ORDER BY id")
     .all() as Topic[];
 }
+
+// --- Freshness queries --------------------------------------------------------
+
+export interface DataFreshness {
+  decisions_latest_date: string | null;
+  guidelines_latest_date: string | null;
+  decisions_count: number;
+  guidelines_count: number;
+}
+
+export function getDataFreshness(): DataFreshness {
+  const db = getDb();
+  const dec = db
+    .prepare("SELECT MAX(date) as latest_date, COUNT(*) as count FROM decisions")
+    .get() as { latest_date: string | null; count: number };
+  const guide = db
+    .prepare("SELECT MAX(date) as latest_date, COUNT(*) as count FROM guidelines")
+    .get() as { latest_date: string | null; count: number };
+  return {
+    decisions_latest_date: dec.latest_date,
+    guidelines_latest_date: guide.latest_date,
+    decisions_count: dec.count,
+    guidelines_count: guide.count,
+  };
+}

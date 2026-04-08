@@ -1,0 +1,37 @@
+{
+  "mcp": "czech-data-protection-mcp",
+  "jurisdiction": "CZ",
+  "authority": "ÚOOÚ — Úřad pro ochranu osobních údajů",
+  "authority_url": "https://www.uoou.cz/",
+  "language": "cs",
+  "sources": [
+    {
+      "id": "uoou-decisions",
+      "name": "ÚOOÚ Decisions and Sanctions",
+      "type": "decisions",
+      "coverage": "GDPR enforcement decisions, sanctions, and reprimands from the Czech Data Protection Authority",
+      "license": "Public regulatory data — official government publications",
+      "update_frequency": "periodic"
+    },
+    {
+      "id": "uoou-guidelines",
+      "name": "ÚOOÚ Guidelines and Opinions",
+      "type": "guidelines",
+      "coverage": "Official guidance documents, opinions, recommendations, and FAQs on GDPR implementation",
+      "license": "Public regulatory data — official government publications",
+      "update_frequency": "periodic"
+    }
+  ],
+  "topics": [
+    "consent",
+    "cookies",
+    "transfers",
+    "dpia",
+    "breach-notification",
+    "privacy-by-design",
+    "cctv",
+    "health-data",
+    "children"
+  ],
+  "disclaimer": "Coverage may be incomplete. Always verify against primary sources at https://www.uoou.cz/"
+}
