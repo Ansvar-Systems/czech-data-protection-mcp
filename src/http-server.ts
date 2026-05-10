@@ -183,7 +183,7 @@ function createMcpServer(): Server {
     function textContent(data: unknown) {
       const payload =
         typeof data === "object" && data !== null
-          ? { ...(data as Record<string, unknown>), _meta: RESPONSE_META }
+          ? { ...(data as unknown as Record<string, unknown>), _meta: RESPONSE_META }
           : { data, _meta: RESPONSE_META };
       return {
         content: [{ type: "text" as const, text: JSON.stringify(payload, null, 2) }],
